@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Java-based E-commerce API with Cognito
+
+Globals:
+  Function:
+    Runtime: java17
+    Timeout: 15
+    MemorySize: 512
+
+Resources:
+
+  ### === DYNAMODB TABLES ===
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Products
+      AttributeDefinitions:
+        - AttributeName: productId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: productId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Orders
+      AttributeDefinitions:
+        - AttributeName: orderId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+
+  ### === LAMBDA FUNCTIONS ===
+  ProductHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: miu.edu.cs516.handlers.ProductHandler::handleRequest
+      CodeUri: .
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        ProductAPI:
+          Type: Api
+          Properties:
+            Path: /products
+            Method: ANY
+
+  OrderHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: miu.edu.cs516.handlers.OrderHandler::handleRequest
+      CodeUri: .
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        OrderAPI:
+          Type: Api
+          Properties:
+            Path: /orders
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
