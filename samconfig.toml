@@ -1,0 +1,28 @@
+version = 0.1
+
+[dev.deploy]
+profile = "emarket-user"
+stack_name = "e-market-dev"
+resolve_s3 = false
+region = "us-east-1"
+s3_bucket = "e-market-dev-bucket"
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+
+[prod.deploy]
+profile = "emarket-user"
+stack_name = "e-market-prod"
+region = "us-east-1"
+s3_bucket = "e-market-sam-prod"
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+
+[default.deploy.parameters]
+stack_name = "e-market-dev"
+resolve_s3 = true
+s3_prefix = "e-market-dev"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = []

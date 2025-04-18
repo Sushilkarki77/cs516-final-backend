@@ -114,7 +114,8 @@ public class ProductHandler implements RequestHandler<APIGatewayProxyRequestEven
                     "productId", item.get("productId").s(),
                     "name", item.get("name").s(),
                     "price", Double.parseDouble(item.get("price").n()),
-                    "description", item.get("description").s()
+                    "description", item.get("description").s(),
+                    "imageUrl", item.get("imageUrl").s()
             );
             products.add(product);
         }
