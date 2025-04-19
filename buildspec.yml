@@ -4,10 +4,26 @@ phases:
   install:
     commands:
       - echo "Switching to Java 21..."
-        - export JAVA_HOME=/corretto/java21
-        - export PATH=$JAVA_HOME/bin:$PATH
-        - java -version
-        - mvn -version
+      - export JAVA_HOME=/corretto/java21
+      - export PATH=$JAVA_HOME/bin:$PATH
+      - java -version
+      - mvn -version
+  build:
+    commands:
+      - echo Building the Lambda project...
+      - mvn clean package -DskipTests
+  post_build:
+    commands:
+      - echo Deploying to Lambda functions...
+      - |
+        aws lambda update-function-code \
+          --function-name $ProductHandlerFunction \
+          --zip-file fileb://target/e-market-1.0.jar
+      - |
+        aws lambda update-function-code \
+          --function-name $OrderHandlerFunction \
+          --zip-file fileb://target/e-market-1.0.jar
+
 artifacts:
   files:
     - target/e-market-1.0.jar
