@@ -2,10 +2,10 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      java: corretto21
     commands:
       - echo "Switching to Java 21..."
-      - export JAVA_HOME=/corretto/java21
-      - export PATH=$JAVA_HOME/bin:$PATH
       - java -version
       - mvn -version
   build:
