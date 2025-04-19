@@ -55,12 +55,13 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
             Map<String, Object> data = gson.fromJson(body, Map.class);
             String orderId = UUID.randomUUID().toString();
             double totalPrice = ((Double) data.get("totalPrice"));
-            String shippingAddress = (String) data.get("shippingAddress");
 
             List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
             List<AttributeValue> itemList = new ArrayList<>();
             for (Map<String, Object> item : items) {
                 String productId = String.valueOf(item.get("productId"));
+                String imageUrl = String.valueOf(item.get("imageUrl"));
+                String name = String.valueOf(item.get("name"));
                 int quantity = ((Number) item.get("quantity")).intValue();
                 double price = ((Number) item.get("price")).doubleValue();
 
@@ -68,6 +69,8 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                 itemMap.put("productId", AttributeValue.fromS(productId));
                 itemMap.put("quantity", AttributeValue.fromN(String.valueOf(quantity)));
                 itemMap.put("price", AttributeValue.fromN(String.valueOf(price)));
+                itemMap.put("name", AttributeValue.fromS(name));
+                itemMap.put("imageUrl", AttributeValue.fromS(imageUrl));
 
                 itemList.add(AttributeValue.fromM(itemMap));
             }
@@ -78,6 +81,7 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
             item.put("userId", AttributeValue.fromS(userId));
             item.put("totalPrice", AttributeValue.fromN(String.valueOf(totalPrice)));
             item.put("createdAt", AttributeValue.fromS(new Date().toString()));
+            item.put("orderStatus", AttributeValue.fromS("Confirmed"));
             item.put("items", AttributeValue.fromL(itemList));
 
             dynamoDb.putItem(PutItemRequest.builder()
@@ -114,6 +118,8 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                 order.put("userId", item.get("userId").s());
                 order.put("totalPrice", Double.parseDouble(item.get("totalPrice").n()));
                 order.put("createdAt", item.get("createdAt").s());
+                order.put("orderStatus", item.get("orderStatus").s());
+
 
                 // Deserialize items array
                 List<AttributeValue> itemsAttr = item.get("items").l();
@@ -123,7 +129,11 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                     itemList.add(Map.of(
                             "productId", m.get("productId").s(),
                             "quantity", Integer.parseInt(m.get("quantity").n()),
-                            "price", Double.parseDouble(m.get("price").n())
+                            "price", Double.parseDouble(m.get("price").n()),
+                            "imageUrl", m.get("imageUrl"),
+                            "name", m.get("name")
+
+
                     ));
                 }
                 order.put("items", itemList);
