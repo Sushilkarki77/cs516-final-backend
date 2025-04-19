@@ -3,14 +3,15 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Java version:"
+      - echo "Switching to Java 21..."
+        - export JAVA_HOME=/corretto/java21
+        - export PATH=$JAVA_HOME/bin:$PATH
         - java -version
-        - echo "Maven version:"
         - mvn -version
   build:
     commands:
       - echo Building the Lambda project...
-      - mvn package -DskipTests=true
+      - mvn clean package -DskipTests
   post_build:
     commands:
       - echo Deploying to Lambda functions...
