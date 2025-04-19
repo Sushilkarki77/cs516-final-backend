@@ -130,8 +130,8 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                             "productId", m.get("productId").s(),
                             "quantity", Integer.parseInt(m.get("quantity").n()),
                             "price", Double.parseDouble(m.get("price").n()),
-                            "imageUrl", m.get("imageUrl"),
-                            "name", m.get("name")
+                            "imageUrl", m.get("imageUrl").s(),
+                            "name", m.get("name").s()
 
 
                     ));
