@@ -1,0 +1,329 @@
+{
+  "Products": [
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p001" },
+          "name": { "S": "Mechanical Keyboard 1" },
+          "nameLower": { "S": "mechanical keyboard 1" },
+          "price": { "N": "336.39" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p001.jpg" },
+          "description": { "S": "This is a detailed description for Mechanical Keyboard 1." },
+          "descriptionLower": { "S": "this is a detailed description for mechanical keyboard 1." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p002" },
+          "name": { "S": "Portable SSD 2" },
+          "nameLower": { "S": "portable ssd 2" },
+          "price": { "N": "124.25" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p002.jpg" },
+          "description": { "S": "This is a detailed description for Portable SSD 2." },
+          "descriptionLower": { "S": "this is a detailed description for portable ssd 2." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p003" },
+          "name": { "S": "LED Desk Lamp 3" },
+          "nameLower": { "S": "led desk lamp 3" },
+          "price": { "N": "211.51" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p003.jpg" },
+          "description": { "S": "This is a detailed description for LED Desk Lamp 3." },
+          "descriptionLower": { "S": "this is a detailed description for led desk lamp 3." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p004" },
+          "name": { "S": "Portable SSD 4" },
+          "nameLower": { "S": "portable ssd 4" },
+          "price": { "N": "62.77" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p004.jpg" },
+          "description": { "S": "This is a detailed description for Portable SSD 4." },
+          "descriptionLower": { "S": "this is a detailed description for portable ssd 4." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p005" },
+          "name": { "S": "Bluetooth Headphones 5" },
+          "nameLower": { "S": "bluetooth headphones 5" },
+          "price": { "N": "388.52" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p005.jpg" },
+          "description": { "S": "This is a detailed description for Bluetooth Headphones 5." },
+          "descriptionLower": { "S": "this is a detailed description for bluetooth headphones 5." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p006" },
+          "name": { "S": "Noise Cancelling Earbuds 6" },
+          "nameLower": { "S": "noise cancelling earbuds 6" },
+          "price": { "N": "360.8" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p006.jpg" },
+          "description": { "S": "This is a detailed description for Noise Cancelling Earbuds 6." },
+          "descriptionLower": { "S": "this is a detailed description for noise cancelling earbuds 6." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p007" },
+          "name": { "S": "LED Desk Lamp 7" },
+          "nameLower": { "S": "led desk lamp 7" },
+          "price": { "N": "164.62" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p007.jpg" },
+          "description": { "S": "This is a detailed description for LED Desk Lamp 7." },
+          "descriptionLower": { "S": "this is a detailed description for led desk lamp 7." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p008" },
+          "name": { "S": "Streaming Microphone 8" },
+          "nameLower": { "S": "streaming microphone 8" },
+          "price": { "N": "481.06" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p008.jpg" },
+          "description": { "S": "This is a detailed description for Streaming Microphone 8." },
+          "descriptionLower": { "S": "this is a detailed description for streaming microphone 8." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p009" },
+          "name": { "S": "Ergonomic Office Chair 9" },
+          "nameLower": { "S": "ergonomic office chair 9" },
+          "price": { "N": "262.11" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p009.jpg" },
+          "description": { "S": "This is a detailed description for Ergonomic Office Chair 9." },
+          "descriptionLower": { "S": "this is a detailed description for ergonomic office chair 9." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p010" },
+          "name": { "S": "Smartwatch 10" },
+          "nameLower": { "S": "smartwatch 10" },
+          "price": { "N": "149.8" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p010.jpg" },
+          "description": { "S": "This is a detailed description for Smartwatch 10." },
+          "descriptionLower": { "S": "this is a detailed description for smartwatch 10." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p011" },
+          "name": { "S": "Digital Drawing Tablet 11" },
+          "nameLower": { "S": "digital drawing tablet 11" },
+          "price": { "N": "143.94" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p011.jpg" },
+          "description": { "S": "This is a detailed description for Digital Drawing Tablet 11." },
+          "descriptionLower": { "S": "this is a detailed description for digital drawing tablet 11." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p012" },
+          "name": { "S": "Gaming Mouse 12" },
+          "nameLower": { "S": "gaming mouse 12" },
+          "price": { "N": "337.77" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p012.jpg" },
+          "description": { "S": "This is a detailed description for Gaming Mouse 12." },
+          "descriptionLower": { "S": "this is a detailed description for gaming mouse 12." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p013" },
+          "name": { "S": "Mechanical Keyboard 13" },
+          "nameLower": { "S": "mechanical keyboard 13" },
+          "price": { "N": "144.46" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p013.jpg" },
+          "description": { "S": "This is a detailed description for Mechanical Keyboard 13." },
+          "descriptionLower": { "S": "this is a detailed description for mechanical keyboard 13." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p014" },
+          "name": { "S": "Portable Bluetooth Speaker 14" },
+          "nameLower": { "S": "portable bluetooth speaker 14" },
+          "price": { "N": "223.32" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p014.jpg" },
+          "description": { "S": "This is a detailed description for Portable Bluetooth Speaker 14." },
+          "descriptionLower": { "S": "this is a detailed description for portable bluetooth speaker 14." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p015" },
+          "name": { "S": "4K Action Camera 15" },
+          "nameLower": { "S": "4k action camera 15" },
+          "price": { "N": "252.27" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p015.jpg" },
+          "description": { "S": "This is a detailed description for 4K Action Camera 15." },
+          "descriptionLower": { "S": "this is a detailed description for 4k action camera 15." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p016" },
+          "name": { "S": "Wireless Charger Stand 16" },
+          "nameLower": { "S": "wireless charger stand 16" },
+          "price": { "N": "183.81" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p016.jpg" },
+          "description": { "S": "This is a detailed description for Wireless Charger Stand 16." },
+          "descriptionLower": { "S": "this is a detailed description for wireless charger stand 16." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p017" },
+          "name": { "S": "Foldable Laptop Stand 17" },
+          "nameLower": { "S": "foldable laptop stand 17" },
+          "price": { "N": "295.46" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p017.jpg" },
+          "description": { "S": "This is a detailed description for Foldable Laptop Stand 17." },
+          "descriptionLower": { "S": "this is a detailed description for foldable laptop stand 17." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p018" },
+          "name": { "S": "Adjustable Tablet Holder 18" },
+          "nameLower": { "S": "adjustable tablet holder 18" },
+          "price": { "N": "298.98" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p018.jpg" },
+          "description": { "S": "This is a detailed description for Adjustable Tablet Holder 18." },
+          "descriptionLower": { "S": "this is a detailed description for adjustable tablet holder 18." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p019" },
+          "name": { "S": "Smart Thermostat 19" },
+          "nameLower": { "S": "smart thermostat 19" },
+          "price": { "N": "134.91" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p019.jpg" },
+          "description": { "S": "This is a detailed description for Smart Thermostat 19." },
+          "descriptionLower": { "S": "this is a detailed description for smart thermostat 19." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p020" },
+          "name": { "S": "Smart Air Purifier 20" },
+          "nameLower": { "S": "smart air purifier 20" },
+          "price": { "N": "160.95" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p020.jpg" },
+          "description": { "S": "This is a detailed description for Smart Air Purifier 20." },
+          "descriptionLower": { "S": "this is a detailed description for smart air purifier 20." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p021" },
+          "name": { "S": "Digital Photo Frame 21" },
+          "nameLower": { "S": "digital photo frame 21" },
+          "price": { "N": "158.48" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p021.jpg" },
+          "description": { "S": "This is a detailed description for Digital Photo Frame 21." },
+          "descriptionLower": { "S": "this is a detailed description for digital photo frame 21." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p022" },
+          "name": { "S": "LED Desk Lamp 22" },
+          "nameLower": { "S": "led desk lamp 22" },
+          "price": { "N": "175.26" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p022.jpg" },
+          "description": { "S": "This is a detailed description for LED Desk Lamp 22." },
+          "descriptionLower": { "S": "this is a detailed description for led desk lamp 22." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p023" },
+          "name": { "S": "Bluetooth Tracker Tag 23" },
+          "nameLower": { "S": "bluetooth tracker tag 23" },
+          "price": { "N": "170.98" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p023.jpg" },
+          "description": { "S": "This is a detailed description for Bluetooth Tracker Tag 23." },
+          "descriptionLower": { "S": "this is a detailed description for bluetooth tracker tag 23." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p024" },
+          "name": { "S": "Mini Projector 24" },
+          "nameLower": { "S": "mini projector 24" },
+          "price": { "N": "158.81" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p024.jpg" },
+          "description": { "S": "This is a detailed description for Mini Projector 24." },
+          "descriptionLower": { "S": "this is a detailed description for mini projector 24." }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "productId": { "S": "p025" },
+          "name": { "S": "Smartphone Gimbal 25" },
+          "nameLower": { "S": "smartphone gimbal 25" },
+          "price": { "N": "280.27" },
+          "imageUrl": { "S": "https://e-market-media-bucket.s3.amazonaws.com/images/p025.jpg" },
+          "description": { "S": "This is a detailed description for Smartphone Gimbal 25." },
+          "descriptionLower": { "S": "this is a detailed description for smartphone gimbal 25." }
+        }
+      }
+    }
+  ]
+}

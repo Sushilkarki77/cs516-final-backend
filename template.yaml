@@ -58,7 +58,7 @@ Resources:
   ProductsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Products
+      TableName: Products1
       AttributeDefinitions:
         - AttributeName: productId
           AttributeType: S
@@ -70,7 +70,7 @@ Resources:
   OrdersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Orders
+      TableName: Orders1
       AttributeDefinitions:
         - AttributeName: orderId
           AttributeType: S
@@ -94,16 +94,17 @@ Resources:
     Properties:
       Name: EcommerceAPI
       StageName: prod
-      Auth:
-        Authorizers:
-          EcommerceApiAuthorizer:
-            CognitoUserPools:
-              PoolId: !Ref EcommerceUserPool
-              ClientId: !Ref EcommerceUserPoolClient
       Cors:
         AllowMethods: "'GET,POST,OPTIONS'"
         AllowHeaders: "'*'"
         AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: EcommerceApiAuthorizer
+        Authorizers:
+          EcommerceApiAuthorizer:
+            UserPoolArn: !GetAtt EcommerceUserPool.Arn
+            Identity:
+              Header: Authorization
 
   # === ProductHandler Lambda Function ===
   ProductHandlerFunction:

@@ -17,6 +17,8 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         String method = request.getHttpMethod();
+        System.out.println("RequestContext: " + gson.toJson(request.getRequestContext()));
+
         String userId = extractUserId(request);
         if (userId == null) return response(401, "Unauthorized");
 
@@ -31,9 +33,19 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
 
     private String extractUserId(APIGatewayProxyRequestEvent request) {
         try {
-            Map<String, Object> claims = (Map<String, Object>) ((Map<String, Object>) request.getRequestContext().getAuthorizer()).get("claims");
+            // Log the request context and authorizer claims for debugging
+            System.out.println("REQUEST CONTEXT: " + new Gson().toJson(request.getRequestContext()));
+
+
+            Map<String, Object> authorizer = (Map<String, Object>) request.getRequestContext().getAuthorizer();
+            if (authorizer == null) return null;
+
+            Map<String, Object> claims = (Map<String, Object>) authorizer.get("claims");
+            if (claims == null) return null;
+
             return (String) claims.get("sub");
         } catch (Exception e) {
+            e.printStackTrace(); // optional for debugging
             return null;
         }
     }
@@ -48,18 +60,23 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
             List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
             List<AttributeValue> itemList = new ArrayList<>();
             for (Map<String, Object> item : items) {
+                String productId = String.valueOf(item.get("productId"));
+                int quantity = ((Number) item.get("quantity")).intValue();
+                double price = ((Number) item.get("price")).doubleValue();
+
                 Map<String, AttributeValue> itemMap = new HashMap<>();
-                itemMap.put("productId", AttributeValue.fromS((String) item.get("productId")));
-                itemMap.put("quantity", AttributeValue.fromN(String.valueOf(((Double) item.get("quantity")).intValue())));
-                itemMap.put("price", AttributeValue.fromN(String.valueOf((Double) item.get("price"))));
+                itemMap.put("productId", AttributeValue.fromS(productId));
+                itemMap.put("quantity", AttributeValue.fromN(String.valueOf(quantity)));
+                itemMap.put("price", AttributeValue.fromN(String.valueOf(price)));
+
                 itemList.add(AttributeValue.fromM(itemMap));
             }
+
 
             Map<String, AttributeValue> item = new HashMap<>();
             item.put("orderId", AttributeValue.fromS(orderId));
             item.put("userId", AttributeValue.fromS(userId));
             item.put("totalPrice", AttributeValue.fromN(String.valueOf(totalPrice)));
-            item.put("shippingAddress", AttributeValue.fromS(shippingAddress));
             item.put("createdAt", AttributeValue.fromS(new Date().toString()));
             item.put("items", AttributeValue.fromL(itemList));
 
@@ -96,7 +113,6 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                 order.put("orderId", item.get("orderId").s());
                 order.put("userId", item.get("userId").s());
                 order.put("totalPrice", Double.parseDouble(item.get("totalPrice").n()));
-                order.put("shippingAddress", item.get("shippingAddress").s());
                 order.put("createdAt", item.get("createdAt").s());
 
                 // Deserialize items array
@@ -126,7 +142,10 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
     private APIGatewayProxyResponseEvent response(int statusCode, String body) {
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(statusCode)
-                .withHeaders(Map.of("Content-Type", "application/json"))
+                .withHeaders(Map.of("Content-Type", "application/json",
+                        "Access-Control-Allow-Origin", "*",
+                        "Access-Control-Allow-Methods", "GET,POST,OPTIONS",
+                        "Access-Control-Allow-Headers", "*"))
                 .withBody(body);
     }
 }

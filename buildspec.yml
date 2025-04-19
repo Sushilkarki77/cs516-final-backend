@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing Maven...
+      - mvn install -DskipTests=true
+  build:
+    commands:
+      - echo Building the Lambda project...
+      - mvn package -DskipTests=true
+  post_build:
+    commands:
+      - echo Deploying to Lambda functions...
+      - |
+        aws lambda update-function-code \
+          --function-name $ProductHandlerFunction \
+          --zip-file fileb://target/e-market-1.0.jar
+      - |
+        aws lambda update-function-code \
+          --function-name $OrderHandlerFunction \
+          --zip-file fileb://target/e-market-1.0.jar
+
+artifacts:
+  files:
+    - target/e-market-1.0.jar

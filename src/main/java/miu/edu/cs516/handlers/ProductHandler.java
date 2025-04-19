@@ -75,9 +75,14 @@ public class ProductHandler implements RequestHandler<APIGatewayProxyRequestEven
         // Define a scan request to search by name or description
         ScanRequest scanRequest = ScanRequest.builder()
                 .tableName(tableName)
-                .filterExpression("contains(#name, :keyword) OR contains(#description, :keyword)")
-                .expressionAttributeNames(Map.of("#name", "name", "#description", "description"))
-                .expressionAttributeValues(Map.of(":keyword", AttributeValue.fromS(keyword)))
+                .filterExpression("contains(#name, :keyword) OR contains(#desc, :keyword)")
+                .expressionAttributeNames(Map.of(
+                        "#name", "nameLower",
+                        "#desc", "descriptionLower"
+                ))
+                .expressionAttributeValues(Map.of(
+                        ":keyword", AttributeValue.fromS(keyword.toLowerCase())
+                ))
                 .build();
 
         // Execute the scan request
@@ -124,7 +129,17 @@ public class ProductHandler implements RequestHandler<APIGatewayProxyRequestEven
     }
 
     private APIGatewayProxyResponseEvent response(int status, String body) {
-        return new APIGatewayProxyResponseEvent().withStatusCode(status).withBody(body);
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        response.setStatusCode(status);
+        response.setBody(body); // Sample JSON
+        // Add CORS headers
+        response.setHeaders(Map.of(
+                "Access-Control-Allow-Origin", "*",
+                "Access-Control-Allow-Methods", "GET,POST,OPTIONS",
+                "Access-Control-Allow-Headers", "*"
+        ));
+
+        return response;
     }
 }
 

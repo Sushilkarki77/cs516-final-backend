@@ -6,7 +6,7 @@
 
     <groupId>miu.edu.cs516</groupId>
     <artifactId>e-market</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <dependencies>
         <dependency>
             <groupId>com.amazonaws</groupId>
