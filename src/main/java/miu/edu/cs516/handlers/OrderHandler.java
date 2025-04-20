@@ -133,7 +133,6 @@ public class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent,
                             "imageUrl", m.get("imageUrl").s(),
                             "name", m.get("name").s()
 
-
                     ));
                 }
                 order.put("items", itemList);
