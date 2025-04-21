@@ -8,9 +8,9 @@ Parameters:
   FullRepositoryId:
     Type: String
     Description: GitHub Repository ID
-  ConnectionARn:
-    type: string
-    description: CodeStar Connection ARN for GitHub
+  ConnectionArn:
+    Type: String
+    Description: CodeStar Connection ARN for GitHub
 
 Resources:
   CodeBuildProject:
@@ -88,7 +88,7 @@ Resources:
               OutputArtifacts:
                 - Name: SourceOutput
               Configuration:
-                ConnectionArn: !Ref ConnectionARn
+                ConnectionArn: !Ref ConnectionArn
                 FullRepositoryId: !Ref FullRepositoryId
                 BranchName: master
                 DetectChanges: true
