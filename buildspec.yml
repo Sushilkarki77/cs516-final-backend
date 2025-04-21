@@ -17,11 +17,11 @@ phases:
       - echo Deploying to Lambda functions...
       - |
         aws lambda update-function-code \
-          --function-name ProductFunction \
+          --function-name ProductHandlerFunction \
           --zip-file fileb://target/e-market-1.0.jar
       - |
         aws lambda update-function-code \
-          --function-name OrderFunction \
+          --function-name OrderHandlerFunction \
           --zip-file fileb://target/e-market-1.0.jar
 
 artifacts:

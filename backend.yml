@@ -1,0 +1,330 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Complete setup with DynamoDB, Lambda Function, API Gateway, CodePipeline, and CodeBuild
+
+Parameters:
+  GitHubLocation:
+    Type: String
+    Description: Full URL of Git Repo
+  FullRepositoryId:
+    Type: String
+    Description: GitHub Repository ID
+  ConnectionArn:
+    Type: String
+    Description: CodeStar Connection ARN for GitHub
+  MediaBucket:
+    Type: String
+    Description: Bucket that stores initial version of code
+
+Resources:
+  ### DynamoDB Table ###
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ProductsTable
+      AttributeDefinitions:
+        - AttributeName: productId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: productId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      DeletionProtectionEnabled: false
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: OrdersTable
+      AttributeDefinitions:
+        - AttributeName: orderId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      DeletionProtectionEnabled: false
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+  ### IAM Role for Lambda ###
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+  ### Lambda Functions ###
+  ProductHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ProductFunction
+      Runtime: java21
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Handler: miu.edu.cs516.handlers.ProductHandler::handleRequest
+      Code:
+        S3Bucket: !Ref MediaBucket
+        S3Key: lambda-code/e-market-1.0.jar
+      Timeout: 15
+      MemorySize: 512
+      Architectures: [ x86_64 ]
+      EphemeralStorage:
+        Size: 512
+  OrderHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: OrderFunction
+      Runtime: java21
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Handler: miu.edu.cs516.handlers.OrderHandler::handleRequest
+      Code:
+        S3Bucket: !Ref MediaBucket
+        S3Key: lambda-code/e-market-1.0.jar
+      Timeout: 15
+      MemorySize: 512
+      Architectures: [ x86_64 ]
+      EphemeralStorage:
+        Size: 512
+  ### Cognito User Pool ###
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: eMarketUserPool
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+  ### Cognito User Pool Client ###
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: eMarketAppClient
+      UserPoolId: !Ref CognitoUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+  ### API Gateway ###
+  EcommerceApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: E-Commerce-API
+      Description: E-Commerce API
+      ApiKeySourceType: HEADER
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  ProductsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt EcommerceApi.RootResourceId
+      PathPart: products
+      RestApiId: !Ref EcommerceApi
+
+  OrdersResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt EcommerceApi.RootResourceId
+      PathPart: orders
+      RestApiId: !Ref EcommerceApi
+
+  CognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: MyCognitoAuthorizer
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      RestApiId: !Ref EcommerceApi
+      ProviderARNs:
+        - !GetAtt CognitoUserPool.Arn
+
+  GetProductsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref EcommerceApi
+      ResourceId: !Ref ProductsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt ProductHandlerFunction.Arn
+
+  PostOrdersMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref EcommerceApi
+      ResourceId: !Ref OrdersResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt OrderHandlerFunction.Arn
+
+  ### Lambda Permissions for API Gateway ###
+  ProductLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ProductHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${EcommerceApi}/*/GET/products
+
+  OrderLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OrderHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${EcommerceApi}/*/POST/orders
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - GetProductsMethod
+      - PostOrdersMethod
+    Properties:
+      RestApiId: !Ref EcommerceApi
+      Description: "Deployment for dev stage"
+
+  ApiGatewayStageDev:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: dev
+      RestApiId: !Ref EcommerceApi
+      DeploymentId: !Ref ApiDeployment
+      Description: "Development stage"
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          LoggingLevel: INFO
+          DataTraceEnabled: true
+
+  ### CodePipeline Resources ###
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: E-commerce-backend-sk
+      Source:
+        Type: GITHUB
+        Location: !Ref GitHubLocation
+        BuildSpec: buildspec.yml
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      TimeoutInMinutes: 60
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CodeBuildServiceRole-EcommerceBackend
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CodePipelineServiceRole-EcommerceBackend
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  PipelineArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+
+  EcommercePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: E-commerce-backend-pipeline
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: 1
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ConnectionArn: !Ref ConnectionArn
+                FullRepositoryId: !Ref FullRepositoryId
+                BranchName: master
+                DetectChanges: true
+              RunOrder: 1
+
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ProjectName: E-commerce-backend-sk
+              RunOrder: 1
+
+Outputs:
+  ApiGatewayInvokeURLDev:
+    Description: "Invoke URL of the API Gateway (dev stage)"
+    Value: !Sub "https://${EcommerceApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
+    Export:
+      Name: ApiGatewayInvokeURLDev
