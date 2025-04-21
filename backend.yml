@@ -1,6 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Complete setup with DynamoDB, Lambda Function, API Gateway, CodePipeline, and CodeBuild
 
+Parameters:
+  GitHubLocation:
+    Type: String
+    Description: Full URL of Git Repo
+  FullRepositoryId:
+    Type: String
+    Description: GitHub Repository ID
+  ConnectionArn:
+    Type: String
+    Description: CodeStar Connection ARN for GitHub
+  MediaBucket:
+    Type: String
+    Description: Bucket that stores initial version of code
+
 Resources:
   ### DynamoDB Table ###
   ProductsTable:
@@ -61,7 +75,7 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Handler: miu.edu.cs516.handlers.ProductHandler::handleRequest
       Code:
-        S3Bucket: e-market-media-bucket
+        S3Bucket: !Ref MediaBucket
         S3Key: lambda-code/e-market-1.0.jar
       Timeout: 15
       MemorySize: 512
@@ -76,7 +90,7 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Handler: miu.edu.cs516.handlers.OrderHandler::handleRequest
       Code:
-        S3Bucket: e-market-media-bucket
+        S3Bucket: !Ref MediaBucket
         S3Key: lambda-code/e-market-1.0.jar
       Timeout: 15
       MemorySize: 512
@@ -108,7 +122,7 @@ Resources:
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_SRP_AUTH
-  ### API Gateway
+  ### API Gateway ###
   EcommerceApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -172,6 +186,7 @@ Resources:
           - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
           - Region: !Ref AWS::Region
             LambdaArn: !GetAtt OrderHandlerFunction.Arn
+
   ### Lambda Permissions for API Gateway ###
   ProductLambdaInvokePermission:
     Type: AWS::Lambda::Permission
@@ -188,6 +203,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${EcommerceApi}/*/POST/orders
+
   ApiDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
@@ -209,6 +225,102 @@ Resources:
           HttpMethod: "*"
           LoggingLevel: INFO
           DataTraceEnabled: true
+
+  ### CodePipeline Resources ###
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: E-commerce-backend-sk
+      Source:
+        Type: GITHUB
+        Location: !Ref GitHubLocation
+        BuildSpec: buildspec.yml
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      TimeoutInMinutes: 60
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CodeBuildServiceRole-EcommerceBackend
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CodePipelineServiceRole-EcommerceBackend
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  PipelineArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+
+  EcommercePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: E-commerce-backend-pipeline
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: 1
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ConnectionArn: !Ref ConnectionArn
+                FullRepositoryId: !Ref FullRepositoryId
+                BranchName: master
+                DetectChanges: true
+              RunOrder: 1
+
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ProjectName: E-commerce-backend-sk
+              RunOrder: 1
 
 Outputs:
   ApiGatewayInvokeURLDev:
